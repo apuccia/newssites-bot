@@ -1,31 +1,57 @@
 import feedparser
-import webbrowser
 import requests
+import time
+import pytz
+
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timezone
+from telegram.ext import Updater, CommandHandler
+from telegraph import Telegraph
 
-last_time = 0
-while True:
-    feed = feedparser.parse("http://www.radiortm.it/feed/")
-    last_time = datetime.now()
-    print(last_time)
-    feed_entries = feed.entries
+LOCAL_TZ = pytz.timezone("Europe/Rome")
+UTC_TZ = pytz.timezone("Etc/UTC")
 
-    for entry in feed.entries:
-        article_time = entry.published
+def main():
+    telegraph = Telegraph("your telegraph token")
+    
+    print(telegraph.get_account_info())
+    last_article_date = UTC_TZ.localize(datetime.now())
 
-        print(last_time.text + "\n")
-        print(article_time.text + "\n")
-        article_title = entry.title
-        article_link = entry.link
+    while True:
+        feed = feedparser.parse("http://www.radiortm.it/feed/")
 
-        req = requests.get(article_link)
-        coverpage = req.content
-        soup = BeautifulSoup(coverpage, 'html5lib')
-        coverpage_news = soup.find('div', class_='td-post-content')
+        for entry in feed.entries:
+            article_date = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %z')
+            
+            if last_article_date > article_date:
+                last_article_date = article_date
 
-        print (article_time)
-        for par in coverpage_news.find_all('p', recursive = False):
-            print(par.text)
+                local_date = article_date.astimezone(LOCAL_TZ).strftime('%H:%M')
+                
+                print(entry.link)
 
-        print("\n")
+                request = requests.get(entry.link)
+                html_content = request.content
+                
+                soup = BeautifulSoup(html_content, 'html5lib')
+                news = soup.find('div', class_='elementor-element elementor-element-6553dd6d contenuto_post elementor-widget elementor-widget-theme-post-content')
+
+                if news != None:
+                    content = "<p>" + local_date + "</p>"
+                    for par in news.find_all(['a', 'p']):
+                        content += str(par)
+
+                    content += "<p>Fonte: RTM (<a href=\"" + entry.link + "\">Leggi l'articolo e i commenti degli utenti sul sito di RTM</a>)</p>"
+
+                    author = "RTM-" + entry.author
+                    link = telegraph.create_page(entry.title, html_content = content, author_name = author)
+                    print('https://telegra.ph/{}'.format(link['path']))
+                else:
+                    print("Class attribute changed!")
+            else:
+                break
+
+        time.sleep(120)
+
+if __name__ == '__main__':
+    main()        
