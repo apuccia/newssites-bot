@@ -12,7 +12,7 @@ LOCAL_TZ = pytz.timezone("Europe/Rome")
 UTC_TZ = pytz.timezone("Etc/UTC")
 
 def main():
-    telegraph = Telegraph("your telegraph token")
+    telegraph = Telegraph("your telegra.ph key")
     
     print(telegraph.get_account_info())
     last_article_date = UTC_TZ.localize(datetime.now())
@@ -23,7 +23,7 @@ def main():
         for entry in feed.entries:
             article_date = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %z')
             
-            if last_article_date > article_date:
+            if last_article_date < article_date:
                 last_article_date = article_date
 
                 local_date = article_date.astimezone(LOCAL_TZ).strftime('%H:%M')
@@ -38,7 +38,13 @@ def main():
 
                 if news != None:
                     content = "<p>" + local_date + "</p>"
-                    for par in news.find_all(['a', 'p']):
+
+                    for par in news.find_all(find_filter):
+                        child = par.find("span")
+
+                        if (child != None):
+                            child.unwrap()
+
                         content += str(par)
 
                     content += "<p>Fonte: RTM (<a href=\"" + entry.link + "\">Leggi l'articolo e i commenti degli utenti sul sito di RTM</a>)</p>"
@@ -52,6 +58,9 @@ def main():
                 break
 
         time.sleep(120)
+
+def find_filter(tag):
+    return tag.name == "p" or (tag.name == "a" and tag.has_attr("href") and tag.has_attr("class"))
 
 if __name__ == '__main__':
     main()        
