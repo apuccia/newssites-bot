@@ -48,7 +48,6 @@ def main(news_sites):
             entry = next(iterator, None)
             while entry != None:
                 article_date = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %z')
-                print(article_date)
                 if last_article_date == None:
                     last_article_date = article_date
 
@@ -60,7 +59,7 @@ def main(news_sites):
                         time.sleep(config.CONNECTION_TIMESPAN)
                         continue
 
-                    print("--A new article is out!")
+                    print("--A new article from " + news_site.get("name") + " is out!")
 
                     if entry == feed.entries[0]:
                         aux = article_date
@@ -71,9 +70,14 @@ def main(news_sites):
                     print("\tArticle link: " + entry.link) 
 
                     html_content = request.content
+
                     soup_for_image = BeautifulSoup(html_content, config.PARSER)
-                    soup_for_content = BeautifulSoup(entry.content[0].value, config.PARSER)
-            
+
+                    if news_site.get("content_tag") == None:
+                        soup_for_content = BeautifulSoup(entry.content[0].value, config.PARSER)
+                    else:
+                        soup_for_content = soup_for_image
+
                     article_content = article_generator(news_site, soup_for_image, soup_for_content, art_local_date, entry.link)
                     
                     author = news_site.get("name") + " " + entry.author
@@ -93,21 +97,34 @@ def main(news_sites):
 def article_generator(news_site, img_soup, content_soup, art_date, art_link):
     article_content = "<p>" + art_date + "</p>"
 
-    image = img_soup.find('a', class_ = 'post_thumb')
+    print(article_content)
+    image = img_soup.find(news_site.get("image_tag"), {news_site.get("image_attribute") : news_site.get("image_attrvalue")})
     article_content += str(image)
-                    
-    for par in content_soup.find_all('p'):
-        child = par.find("span")
+
+    if news_site.get("content_tag") == None:
+        article_content += get_paragraphs(content_soup)
+    else:
+        cont = content_soup.find(news_site.get("content_tag"), {news_site.get("content_attribute") : news_site.get("content_attrvalue")})        
+
+        article_content += get_paragraphs(cont)
+
+    article_content += "<p>Fonte: " + news_site.get("name") + " (<a href=\"" + art_link + "\">Leggi l'articolo e i commenti degli utenti sul sito di " + news_site.get("name") + "</a>)</p>"
+
+    #print(article_content)
+    return article_content
+
+def get_paragraphs(content):
+    paragraphs = ""
+    for par in content.find_all('p'):
+        child = par.find(["span", "div"])
 
         if (child != None):
             child.unwrap()
 
-        article_content += str(par)
-                
-    article_content += "<p>Fonte: " + news_site.get("name") + " (<a href=\"" + art_link + "\">Leggi l'articolo e i commenti degli utenti sul sito di " + news_site.get("name") + "</a>)</p>"
+        paragraphs += str(par)
 
-    return article_content
-
+    print(paragraphs)
+    return paragraphs    
 
 if __name__ == '__main__':
     try:
