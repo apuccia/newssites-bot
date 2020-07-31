@@ -1,28 +1,25 @@
 import sys
-import getopt
+import time
+import json
+from datetime import datetime
+
+import pytz
 import feedparser
 import requests
-import time
-import pytz
-import json
+from bs4 import BeautifulSoup
+from telegraph import Telegraph
 
 import config
-
-from bs4 import BeautifulSoup
-from datetime import datetime, timezone
-from telegram.ext import Updater, CommandHandler
-from telegraph import Telegraph
 
 TZ_LOCAL = pytz.timezone("Europe/Rome")
 
 TELEGRAPH = "https://telegra.ph/"
 
-USAGE = "Usage: python " + sys.argv[0] + " -s \"news site name\""
-
 E_BAD_INPUT = "Wrong option or no argument inserted"
 E_CONNECTION = "Connection error, retrying in " + str(config.CONNECTION_TIMESPAN)
 E_PERMANENT_REDIRECT = "Feed permanently redirected, modify config file"
 E_FEED_NOT_AVAILABLE = "Feed not available"
+
 
 def main(news_sites):
     telegraph = Telegraph(config.TELEGRAPH_KEY)
@@ -110,8 +107,8 @@ def article_generator(news_site, img_soup, content_soup, art_date, art_link):
 
     article_content += "<p>Fonte: " + news_site.get("name") + " (<a href=\"" + art_link + "\">Leggi l'articolo e i commenti degli utenti sul sito di " + news_site.get("name") + "</a>)</p>"
 
-    #print(article_content)
     return article_content
+
 
 def get_paragraphs(content):
     paragraphs = ""
@@ -122,22 +119,11 @@ def get_paragraphs(content):
             child.unwrap()
 
         paragraphs += str(par)
-
-    print(paragraphs)
+        
     return paragraphs    
 
-if __name__ == '__main__':
-    try:
-        (opts, args) = getopt.getopt(sys.argv[1:], "hs:", ["help", "newssite="])  
-    except getopt.GetoptError:
-        print(E_BAD_INPUT)
-        sys.exit(1) 
 
-    for opt, arg in opts:
-        if opt in ('-h', '--help'):
-            print(USAGE)
-            sys.exit(1)
-    
+if __name__ == '__main__':
     with open(config.NEWS_SITES, 'r') as jsonfile:
         news_sites = json.load(jsonfile)   
 

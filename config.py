@@ -1,4 +1,4 @@
-TELEGRAPH_KEY = "your telegra.ph api key"
+TELEGRAPH_KEY = "your telegraph api key"
 TELEGRAM_KEY = "your telegram api key"
 
 TELEGRAPH_ARTICLE_DATE_FORMAT = "%a, %d %b %Y %H:%M"
