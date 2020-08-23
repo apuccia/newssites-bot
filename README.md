@@ -1,7 +1,7 @@
 # newssites-bot
 This program let you track articles published by some websites (actually only the ones that are popular in my hometown) using RSS feeds. For each article, using the original image and paragraphs, it will create a clean and minimal Telegra.ph page. 
 
-Obviously each Telegra.ph page is going to contain the appropriate acknowledgment to the original article and website.
+Obviously each Telegra.ph page is going to contain the appropriate acknowledgment to the original article and website. Each article is created as is, I'm not responsible about the original content published by the newspaper office.
 
 ## What do you need to use this program (at this moment)
 The program is written in Python 3+ and uses these external APIs:
@@ -12,9 +12,10 @@ The program is written in Python 3+ and uses these external APIs:
 * [**telegraph**](https://python-telegraph.readthedocs.io/en/latest/) : used to create the telegra.ph page. Not all HTML tags can be used (like \<span\> tag).
 
 ## Websites supported
-Currently only 2 websites are supported:
+Currently only 3 websites are supported:
 * [**RTM**](https://www.radiortm.it/)
 * [**Ragusa oggi**](https://www.ragusaoggi.it/)
+* [**Ragusa news**](https://www.ragusanews.com/)
 
 If you want to have support for other websites just contact me.
 

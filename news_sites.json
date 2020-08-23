@@ -1,15 +1,15 @@
 [
     {
-        "name": "RTM",
-        "website" : "https://www.radiortm.it/", 
-        "rss" : "https://www.radiortm.it/feed/",
+        "name": "Ragusa News",
+        "website": "https://www.ragusanews.com/",
+        "rss": "https://www.ragusanews.com/Rss",
         "content_tag" : null,
         "content_attribute" : null,
         "content_attrvalue" : null,
-        "image_tag" : "a",
+        "image_tag" : "img",
         "image_attribute" : "class",
-        "image_attrvalue" : "post_thumb"
-    }, 
+        "image_attrvalue" : "img-responsive space30"
+    },
     {
         "name" : "Ragusa Oggi",
         "website" : "https://www.ragusaoggi.it/",
@@ -20,5 +20,16 @@
         "image_tag" : "img",
         "image_attribute" : "itemprop",
         "image_attrvalue" : "image"
+    },
+    {
+        "name": "RTM",
+        "website" : "https://www.radiortm.it/", 
+        "rss" : "https://www.radiortm.it/feed/",
+        "content_tag" : null,
+        "content_attribute" : null,
+        "content_attrvalue" : null,
+        "image_tag" : "a",
+        "image_attribute" : "class",
+        "image_attrvalue" : "post_thumb"
     }
 ]
